@@ -42,5 +42,5 @@ export const checkUser = async (req, res) => {
 	if (!user) {
 		return res.status(200).send("doesn't exist")
 	}
-	return res.status(200).send("exists")
+	return res.status(200).json("exists")
 }

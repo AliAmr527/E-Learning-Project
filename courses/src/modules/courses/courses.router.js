@@ -7,10 +7,13 @@ const router = Router()
 router.post("/create", checkRole("instructor"), CC.createCourse)
 router.get("/getAllCourses", CC.getAllCourses)
 router.get("/coursesForInstructor",checkRole("instructor"), CC.getCoursesForInstructor)
+//student
 router.post("/apply", CC.applyCourse)
 router.post("/cancel", CC.cancelCourseEnrollment)
+//instructor
 router.post("/accept", CC.acceptRequest)
 router.post("/reject", CC.rejectRequest)
+
 router.post("/review", CC.reviewCourse)
 
 export default router
