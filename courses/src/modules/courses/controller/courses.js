@@ -36,6 +36,9 @@ export const getAllCourses = async (req, res) => {
 	obj.forEach((course) => {
 		course.requestedStudents = undefined
 		course.enrolledStudents = course.enrolledStudents.length
+		course.reviews.forEach((review)=>{
+			review._id = undefined
+		})
 	})
 	return res.status(200).json({courses:obj})
 }
@@ -103,9 +106,10 @@ export const reviewCourse = async (req, res) => {
 	const { courseId, studentName, review, rating } = req.body
 	const course = await courseModel.findByIdAndUpdate(courseId, { $addToSet: { reviews: { createdBy: studentName, review } } })
 	const newRating = (course.rating * course.rateNo + rating) / (course.rateNo + 1)
-	console.log(course.rating , course.rateNo , rating)
 	course.rating = newRating
 	course.rateNo = course.rateNo + 1
 	await course.save()
 	return res.status(200).json(course)
 }
+
+
