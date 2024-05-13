@@ -10,7 +10,7 @@ const bootstrap = (app,express)=>{
     app.use("/auth",authRouter)
     app.use("/instructor",instructorRouter)
     app.use("/student",studentRouter)
-    app.use("*",(_,res)=>{res.send("invalid url")})
+    app.use("*",(_,res)=>{res.status(404).send("invalid url")})
 }
 
 export default bootstrap

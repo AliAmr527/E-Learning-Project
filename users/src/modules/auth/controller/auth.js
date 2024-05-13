@@ -10,9 +10,9 @@ export const register = async (req, res) => {
             id:user._id,
             role:user.role
         }
-        res.status(200).send({ output })
+        res.status(200).json({ output })
 	} catch (error) {
-		res.status(400).send({ message: error.message })
+		res.status(400).json({ message: error.message })
 	}
 }
 
@@ -30,9 +30,9 @@ export const login = async (req, res) => {
             id:user._id,
             role:user.role
         }
-		res.status(200).send({ output })
+		res.status(200).json({ output })
 	} catch (error) {
-		res.status(400).send({ message: error.message })
+		res.status(400).json({ message: error.message })
 	}
 }
 
