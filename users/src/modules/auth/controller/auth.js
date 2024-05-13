@@ -27,8 +27,8 @@ export const login = async (req, res) => {
 			return res.status(400).send({ message: "Incorrect password!" })
 		}
         const output = {
-            id:user._id,
-            role:user.role,
+			id:user._id,
+			role:user.role,
 			name:user.name
         }
 		res.status(200).json({ output })
