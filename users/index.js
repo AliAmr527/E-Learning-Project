@@ -4,4 +4,6 @@ const app = express()
 const port = 5001
 
 bootstrap(app,express)
-app.listen(port, () => console.log(`Example app listening on port ${port}!`))
+const server = app.listen(port, () => console.log(`Example app listening on port ${port}!`))
+
+export default server
