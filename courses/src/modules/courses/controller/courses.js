@@ -2,7 +2,7 @@ import courseModel from "../../../../db/models/courses.model.js"
 import axios from "axios"
 import { checkUser } from "../../../utils/checkUser.js"
 export const createCourse = async (req, res) => {
-	const { name, description, category, capacity, createdBy } = req.body
+	const { name, duration, category, capacity, createdBy } = req.body
 	try {
 		const response = checkUser(createdBy)
 
@@ -11,7 +11,7 @@ export const createCourse = async (req, res) => {
 		const isExist = await courseModel.findOne({ name })
 		if (isExist) return res.status(400).send("Course already exist")
 
-		const course = await courseModel.create({ name, description, category, capacity, createdBy })
+		const course = await courseModel.create({ name, duration, category, capacity, createdBy })
 		if (!course) return res.status(400).send("Course not created")
 
 		res.status(200).json(course)
@@ -35,6 +35,7 @@ export const getAllCourses = async (req, res) => {
 	let obj = JSON.parse(JSON.stringify(courses))
 	obj.forEach((course) => {
 		course.requestedStudents = undefined
+		course.pastStudents = undefined
 		course.enrolledStudents = course.enrolledStudents.length
 		course.reviews.forEach((review)=>{
 			review._id = undefined
@@ -56,7 +57,7 @@ export const applyCourse = async (req, res) => {
 	const { courseId, studentId } = req.body
 	const response = checkUser(studentId)
 	if (response.data == "doesn't exist") return res.status(404).send("student not found")
-	const isExist = await courseModel.findOne({ enrolledStudents: studentId })
+	const isExist = await courseModel.findOne({courseId:courseId, enrolledStudents: studentId })
 	if (isExist) return res.status(409).send("you already are enrolled for this course")
 	const course = await courseModel.updateOne({ _id: courseId }, { $addToSet: { requestedStudents: studentId } }, { new: true })
 	if (!course.matchedCount) {
@@ -84,6 +85,17 @@ export const acceptRequest = async (req, res) => {
 	const response = checkUser(instructorId)
 	if (response.data == "doesn't exist") return res.status(404).send("instructor not found")
 	const course = await courseModel.updateOne({ createdBy: instructorId, _id: courseId }, { $addToSet: { enrolledStudents: studentId } })
+	const courseInfo = await courseModel.findOne({ createdBy: instructorId, _id: courseId })
+	// await axios.post(`http://localhost:5001/student/pushCourses`,
+	// 	{
+	// 		_id:studentId,
+	// 		name:courseInfo.name,
+	// 		duration:courseInfo.duration,
+	// 		category:courseInfo.category,
+	// 		status:"current"
+	// 	}
+	// )
+
 	if (!course.matchedCount) return res.status(404).send("you don't own this course or course doesn't exist")
 	if(!course.modifiedCount) return res.status(404).send("request not found")
 	await courseModel.findByIdAndUpdate(courseId, { $pull: { requestedStudents: studentId } })
@@ -112,4 +124,35 @@ export const reviewCourse = async (req, res) => {
 	return res.status(200).json(course)
 }
 
-
+export const finishedCourse = async (req, res) => {
+	const { courseId, studentId } = req.body
+	const course = await courseModel.updateOne({ _id: courseId }, { $addToSet: { pastStudents: studentId }, $pull: { enrolledStudents: studentId }})
+	if (!course.matchedCount) return res.status(404).send("course not found")
+	if (!course.modifiedCount) return res.status(409).send("student already added")
+	return res.status(200).send("course finished")
+}
+export const viewCurrentAndPastCourses = async (req, res) => {
+	const currentCourses = await courseModel.find({ enrolledStudents: req.params.id }, { name:1,duration:1,category:1,rating:1 })
+	console.log(req.params.studentId)
+	const currentCoursesObj = currentCourses.map((course) => {
+		return{
+			name:course.name,
+			duration:course.duration,
+			category:course.category,
+			rating:course.rating,
+			status:"current"
+		}
+	})
+	const pastCourses = await courseModel.find({ pastStudents: req.params.id }, { name:1,duration:1,category:1,rating:1 })
+	const pastCoursesObj = pastCourses.map((course) => {
+		return{
+			name:course.name,
+			duration:course.duration,
+			category:course.category,
+			rating:course.rating,
+			status:"done"
+		}
+	})
+	const courses = currentCoursesObj.concat(pastCoursesObj)
+	return res.status(200).json({courses})
+}

@@ -5,8 +5,8 @@ const courseSchema = new Schema({
 		type: String,
 		required: true,
 	},
-	description: {
-		type: String,
+	duration: {
+		type: Number,
 		required: true,
 	},
 	category: {
@@ -27,6 +27,11 @@ const courseSchema = new Schema({
 		},
 	],
 	enrolledStudents: [
+		{
+			type: String,
+		},
+	],
+	pastStudents: [
 		{
 			type: String,
 		},
