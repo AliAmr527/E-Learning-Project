@@ -28,7 +28,8 @@ export const login = async (req, res) => {
 		}
         const output = {
             id:user._id,
-            role:user.role
+            role:user.role,
+			name:user.name
         }
 		res.status(200).json({ output })
 	} catch (error) {
@@ -36,4 +37,10 @@ export const login = async (req, res) => {
 	}
 }
 
-
+export const checkUser = async (req, res) => {
+	const user = await User.findById(req.params.id)
+	if(!user){
+		return res.status(200).send("doesn't exist")
+	}
+	return res.status(200).send("exists")
+}
