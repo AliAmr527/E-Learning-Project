@@ -21,6 +21,25 @@ export const createCourse = async (req, res) => {
 	}
 }
 
+export const editCourse = async (req, res) => {
+	try {
+		const course = await courseModel.findByIdAndUpdate(req.body.id, req.body)
+		if (!course) return res.status(404).send("course not found")
+		return res.status(200).send("course updated")
+	} catch (error) {
+		return res.status(400).json({ message: error.message })
+	}
+}
+export const deleteCourse = async (req, res) => {
+	try {
+		const course = await courseModel.findByIdAndDelete(req.body.id)
+		if (!course) return res.status(404).send("course not found")
+		return res.status(200).send("course deleted")
+	} catch (error) {
+		return res.status(400).json({ message: error.message })
+	}
+}
+
 export const getAllCourses = async (req, res) => {
 	let reqQuery = courseModel.find()
 	if (req.query.sort == "name") {
@@ -54,13 +73,13 @@ export const getCoursesForInstructor = async (req, res) => {
 	const courses = await courseModel.find({ createdBy: req.body.id }, { _id: 1, name: 1, requestedStudents: 1 })
 	if (!courses) return res.status(404).send("no courses found")
 	const output = JSON.parse(JSON.stringify(courses))
-	for (let i = 0; i < output.length; i++) {
-		if (output[i].requestedStudents.length != 0) {
-			output[i].requestedStudents.forEach((student) => {
-				student._id = student._id.toString()
-			})
+	for (let i = output.length - 1; i >= 0; i--) {
+		if (output[i].requestedStudents.length === 0) {
+			output.splice(i, 1);
 		} else {
-			output.splice(i, 1)
+			for (let j = 0; j < output[i].requestedStudents.length; j++) {
+				output[i].requestedStudents[j]._id = output[i].requestedStudents[j]._id.toString();
+			}
 		}
 	}
 	return res.status(200).json({ requests: output })
@@ -74,7 +93,7 @@ export const applyCourse = async (req, res) => {
 	console.log({ _id: studentId, name: name })
 	const isExist = await courseModel.findOne({
 		_id: courseId,
-		$or: [{ enrolledStudents: { $elemMatch: { _id: studentId, name: name } } },{ pastStudents: { $elemMatch: { _id: studentId, name: name } } }]
+		$or: [{ enrolledStudents: { $elemMatch: { _id: studentId, name: name } } }, { pastStudents: { $elemMatch: { _id: studentId, name: name } } }],
 	})
 	if (isExist) return res.status(409).send("you already are enrolled for this course or have taken this course before")
 	const course = await courseModel.updateOne({ _id: courseId }, { $addToSet: { requestedStudents: { _id: studentId, name: name } } }, { new: true })

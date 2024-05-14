@@ -16,6 +16,8 @@ router.post("/accept", CC.acceptRequest)
 router.post("/reject", CC.rejectRequest)
 //admin
 router.post("/finishedCourse", CC.finishedCourse)
+router.patch("/editCourse",CC.editCourse)
+router.delete("/deleteCourse",CC.deleteCourse)
 //notifications
 router.post("/getAllNotifications", CC.getAllNotifications)
 router.post("/markAsRead", CC.markAsRead)

@@ -19,3 +19,22 @@ export const applyCourse = async (req, res) => {
 		return res.status(400).json({ message: error.message })
 	}
 }
+
+
+export const getStudents = async (req, res) => {
+	try {
+		const students = await userModel.find({ role: "student" })
+		return res.json({students})
+	} catch (error) {
+		return res.status(400).json({ message: error.message })
+	}
+}
+
+export const editStudent = async (req, res) => {
+	try {
+		await userModel.findByIdAndUpdate(req.params.id, req.body)
+		return res.send("user updated successfully")
+	} catch (error) {
+		return res.status(400).json({ message: error.message })
+	}
+}
