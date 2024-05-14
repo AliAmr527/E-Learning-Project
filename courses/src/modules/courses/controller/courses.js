@@ -90,7 +90,6 @@ export const applyCourse = async (req, res) => {
 	const { courseId, name, studentId } = req.body
 	const response = checkUser(studentId)
 	if (response.data == "doesn't exist") return res.status(404).send("student not found")
-	console.log({ _id: studentId, name: name })
 	const isExist = await courseModel.findOne({
 		_id: courseId,
 		$or: [{ enrolledStudents: { $elemMatch: { _id: studentId, name: name } } }, { pastStudents: { $elemMatch: { _id: studentId, name: name } } }],
@@ -186,7 +185,6 @@ export const finishedCourse = async (req, res) => {
 }
 export const viewCurrentAndPastCourses = async (req, res) => {
 	const currentCourses = await courseModel.find({ enrolledStudents: req.params.id }, { name: 1, duration: 1, category: 1, rating: 1 })
-	console.log(req.params.studentId)
 	const currentCoursesObj = currentCourses.map((course) => {
 		return {
 			name: course.name,
