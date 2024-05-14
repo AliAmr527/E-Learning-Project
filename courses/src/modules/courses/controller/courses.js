@@ -52,7 +52,12 @@ export const getCoursesForInstructor = async (req, res) => {
 	if (isExist.data == "doesn't exist") return res.status(404).send("instructor not found")
 	const courses = await courseModel.find({ createdBy: req.body.id }, { _id: 1, name: 1, requestedStudents: 1 })
 	if (!courses) return res.status(404).send("no courses found")
-	return res.status(200).json(courses)
+	courses.forEach((course) => {
+		course.requestedStudents.forEach((student) => {
+			student._id = student._id.toString()
+		})
+	})
+	return res.status(200).json({requests:courses})
 }
 
 //for student requesting enrollment
@@ -118,7 +123,7 @@ export const reviewCourse = async (req, res) => {
 		_id: courseId,
 		$or: [{ enrolledStudents: { _id: studentId, name: studentName } }, { pastStudents: { _id: studentId, name: studentName } }],
 	})
-	if(!reviewCourseCheck) return res.status(404).send("you are not authorized to review this course")
+	if (!reviewCourseCheck) return res.status(404).send("you are not authorized to review this course")
 	const course = await courseModel.findByIdAndUpdate(courseId, { $addToSet: { reviews: { createdBy: studentName, review } } })
 	const newRating = (course.rating * course.rateNo + rating) / (course.rateNo + 1)
 	course.rating = newRating
