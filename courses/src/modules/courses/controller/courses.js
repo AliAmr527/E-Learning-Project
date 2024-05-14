@@ -23,7 +23,7 @@ export const createCourse = async (req, res) => {
 export const getAllCourses = async (req, res) => {
 	let reqQuery = courseModel.find()
 	if(req.query.sort == "name"){
-		reqQuery.sort({ name: -1 })
+		reqQuery.sort({ name: 1 })
 	}
 	if (req.query.sort == "rating") {
 		reqQuery.sort({ rating: -1 })
