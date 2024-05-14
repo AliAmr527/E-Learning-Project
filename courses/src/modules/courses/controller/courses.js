@@ -1,6 +1,7 @@
 import courseModel from "../../../../db/models/courses.model.js"
 import axios from "axios"
 import { checkUser } from "../../../utils/checkUser.js"
+import notificationModel from "../../../../db/models/notification.model.js"
 export const createCourse = async (req, res) => {
 	const { name, duration, category, capacity, createdBy } = req.body
 	try {
@@ -52,12 +53,17 @@ export const getCoursesForInstructor = async (req, res) => {
 	if (isExist.data == "doesn't exist") return res.status(404).send("instructor not found")
 	const courses = await courseModel.find({ createdBy: req.body.id }, { _id: 1, name: 1, requestedStudents: 1 })
 	if (!courses) return res.status(404).send("no courses found")
-	courses.forEach((course) => {
-		course.requestedStudents.forEach((student) => {
-			student._id = student._id.toString()
-		})
-	})
-	return res.status(200).json({requests:courses})
+	const output = JSON.parse(JSON.stringify(courses))
+	for (let i = 0; i < output.length; i++) {
+		if (output[i].requestedStudents.length != 0) {
+			output[i].requestedStudents.forEach((student) => {
+				student._id = student._id.toString()
+			})
+		} else {
+			output.splice(i, 1)
+		}
+	}
+	return res.status(200).json({ requests: output })
 }
 
 //for student requesting enrollment
@@ -65,8 +71,12 @@ export const applyCourse = async (req, res) => {
 	const { courseId, name, studentId } = req.body
 	const response = checkUser(studentId)
 	if (response.data == "doesn't exist") return res.status(404).send("student not found")
-	const isExist = await courseModel.findOne({ courseId: courseId, enrolledStudents: { _id: studentId, name: name } })
-	if (isExist) return res.status(409).send("you already are enrolled for this course")
+	console.log({ _id: studentId, name: name })
+	const isExist = await courseModel.findOne({
+		_id: courseId,
+		$or: [{ enrolledStudents: { $elemMatch: { _id: studentId, name: name } } },{ pastStudents: { $elemMatch: { _id: studentId, name: name } } }]
+	})
+	if (isExist) return res.status(409).send("you already are enrolled for this course or have taken this course before")
 	const course = await courseModel.updateOne({ _id: courseId }, { $addToSet: { requestedStudents: { _id: studentId, name: name } } }, { new: true })
 	if (!course.modifiedCount) {
 		return res.status(409).send("you already applied for this course")
@@ -98,7 +108,13 @@ export const acceptRequest = async (req, res) => {
 	)
 	if (!course.matchedCount) return res.status(404).send("you don't own this course or course doesn't exist")
 	if (!course.modifiedCount) return res.status(404).send("request not found")
-	await courseModel.findByIdAndUpdate(courseId, { $pull: { requestedStudents: { _id: studentId, name: name } } })
+	const courseName = await courseModel.findByIdAndUpdate(courseId, { $pull: { requestedStudents: { _id: studentId, name: name } } })
+	await notificationModel.create({
+		studentId: studentId,
+		title: "Request Accepted",
+		message: `Your request for ${courseName.name} course has been accepted`,
+		status: "unread",
+	})
 	return res.status(200).send("request accepted")
 }
 
@@ -112,6 +128,13 @@ export const rejectRequest = async (req, res) => {
 	)
 	if (!course.matchedCount) return res.status(404).send("you don't own this course or this course doesn't exist")
 	if (!course.modifiedCount) return res.status(404).send("request not found")
+	const courseName = await courseModel.findById(courseId)
+	await notificationModel.create({
+		studentId: studentId,
+		title: "Request Rejected",
+		message: `Your request for ${courseName.name} course has been rejected`,
+		status: "unread",
+	})
 	return res.status(200).send("request rejected")
 }
 //
@@ -166,4 +189,21 @@ export const viewCurrentAndPastCourses = async (req, res) => {
 	})
 	const courses = currentCoursesObj.concat(pastCoursesObj)
 	return res.status(200).json({ courses })
+}
+
+export const getAllNotifications = async (req, res) => {
+	const notifications = await notificationModel.find({ studentId: req.body.id })
+	return res.status(200).json({ notifications })
+}
+
+export const getAllUnreadNotifications = async (req, res) => {
+	const notifications = await notificationModel.find({ studentId: req.body.id, status: "unread" })
+	return res.status(200).json({ notifications })
+}
+
+export const markAsRead = async (req, res) => {
+	const { notificationId } = req.body
+	const response = await notificationModel.findByIdAndUpdate(notificationId, { status: "read" })
+	if (!response) return res.status(404).send("notification not found")
+	return res.status(200).send("notification marked as read")
 }

@@ -6,7 +6,7 @@ const router = Router()
 
 router.post("/create", checkRole("instructor"), CC.createCourse)
 router.get("/getAllCourses", CC.getAllCourses)
-router.get("/coursesForInstructor",checkRole("instructor"), CC.getCoursesForInstructor)
+router.post("/coursesForInstructor",checkRole("instructor"), CC.getCoursesForInstructor)
 //student
 router.post("/apply", CC.applyCourse)
 router.post("/cancel", CC.cancelCourseEnrollment)
@@ -16,7 +16,11 @@ router.post("/accept", CC.acceptRequest)
 router.post("/reject", CC.rejectRequest)
 //admin
 router.post("/finishedCourse", CC.finishedCourse)
-
+//notifications
+router.post("/getAllNotifications", CC.getAllNotifications)
+router.post("/markAsRead", CC.markAsRead)
+router.post("/getAllUnreadNotifications",CC.getAllUnreadNotifications)
+//review
 router.post("/review", CC.reviewCourse)
 
 export default router
