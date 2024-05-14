@@ -46,7 +46,7 @@ export const getAllCourses = async (req, res) => {
 		reqQuery.sort({ name: 1 })
 	}
 	if (req.query.sort == "rating") {
-		reqQuery.sort({ rating: -1 })
+		reqQuery.sort({ rating: -1 , name:1})
 	}
 	if (req.query.name) {
 		reqQuery.find({ name: { $regex: req.query.name || " ", $options: "i" } })
