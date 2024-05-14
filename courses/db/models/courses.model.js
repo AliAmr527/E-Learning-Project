@@ -23,17 +23,20 @@ const courseSchema = new Schema({
 	},
 	requestedStudents: [
 		{
-			type: String,
+			id: { type: String },
+			name: { type: String },
 		},
 	],
 	enrolledStudents: [
 		{
-			type: String,
+			id: { type: String },
+			name: { type: String },
 		},
 	],
 	pastStudents: [
 		{
-			type: String,
+			id: { type: String },
+			name: { type: String },
 		},
 	],
 	reviews: [
@@ -42,14 +45,16 @@ const courseSchema = new Schema({
 			review: { type: String },
 		},
 	],
-	createdBy:{
+	createdBy: {
 		type: String,
 		required: true,
 	},
-	rateNo:{
+	rateNo: {
 		type: Number,
-		default: 0
-	}
+		default: 0,
+	},
+},{
+	
 })
 
 const courseModel = model("Course", courseSchema)
