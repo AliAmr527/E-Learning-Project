@@ -11,6 +11,6 @@ var corsOptions = {
 app.use(cors(corsOptions))
 
 bootstrap(app, express)
-const server = app.listen(port, () => console.log(`Example app listening on port ${port}!`))
+const server = app.listen(port, () => console.log(`User microservice listening on port ${port}!`))
 
 export default server

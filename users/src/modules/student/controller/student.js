@@ -37,23 +37,3 @@ export const editUsers = async (req, res) => {
 		return res.status(400).json({ message: error.message })
 	}
 }
-
-export const pushCourses = async (req, res) => {
-	try {
-		const user = await userModel.findByIdAndUpdate(req.body._id, {
-			$addToSet: { studentCourses:{name:req.body.name,duration:req.body.duration,category:req.body.category,status:req.body.status}}
-		})
-		return res.json(user)
-	} catch (error) {
-		return res.status(400).json({ message: error.message })
-	}
-}
-
-export const getCoursesCurrent = async (req, res) => {
-	try {
-		const user = await userModel.findById(req.body._id).sort({ "studentCourses.status": 1 })
-		return res.json(user.studentCourses)
-	} catch (error) {
-		return res.status(400).json({ message: error.message })
-	}
-}
