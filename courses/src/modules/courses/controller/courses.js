@@ -185,7 +185,7 @@ export const finishedCourse = async (req, res) => {
 	return res.status(200).send("course finished")
 }
 export const viewCurrentAndPastCourses = async (req, res) => {
-	const currentCourses = await courseModel.find({ enrolledStudents: { _id: req.body.id } }, { name: 1, duration: 1, category: 1, rating: 1 })
+	const currentCourses = await courseModel.find({ enrolledStudents: { _id: req.body.id,name:req.body.name } }, { name: 1, duration: 1, category: 1, rating: 1 })
 	const currentCoursesObj = currentCourses.map((course) => {
 		return {
 			name: course.name,
