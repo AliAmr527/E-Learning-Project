@@ -209,7 +209,7 @@ export const viewCurrentAndPastCourses = async (req, res) => {
 }
 
 export const getAllNotifications = async (req, res) => {
-	const notifications = await notificationModel.find({ studentId: req.body.id })
+	const notifications = await notificationModel.find({ studentId: req.body.id }).select("-studentId -__v")
 	return res.status(200).json({ notifications })
 }
 
