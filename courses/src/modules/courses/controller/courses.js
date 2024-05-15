@@ -41,7 +41,7 @@ export const deleteCourse = async (req, res) => {
 }
 
 export const getAllCourses = async (req, res) => {
-	let reqQuery = courseModel.find()
+	let reqQuery = courseModel.find({published:true})
 	if (req.query.sort == "name") {
 		reqQuery.sort({ name: 1 })
 	}
@@ -54,7 +54,7 @@ export const getAllCourses = async (req, res) => {
 	if (req.query.category) {
 		reqQuery.find({ category: { $regex: req.query.category || " ", $options: "i" } })
 	}
-	const courses = await reqQuery.select("-__v -_id -createdBy -rateNo")
+	const courses = await reqQuery.select("-__v -rateNo")
 	let obj = JSON.parse(JSON.stringify(courses))
 	obj.forEach((course) => {
 		course.requestedStudents = undefined
@@ -70,7 +70,7 @@ export const getAllCourses = async (req, res) => {
 export const getCoursesForInstructor = async (req, res) => {
 	const isExist = checkUser(req.body.id)
 	if (isExist.data == "doesn't exist") return res.status(404).send("instructor not found")
-	const courses = await courseModel.find({ createdBy: req.body.id }, { _id: 1, name: 1, requestedStudents: 1 })
+	const courses = await courseModel.find({ createdBy: req.body.id,published:true }, { _id: 1, name: 1, requestedStudents: 1 })
 	if (!courses) return res.status(404).send("no courses found")
 	const output = JSON.parse(JSON.stringify(courses))
 	for (let i = output.length - 1; i >= 0; i--) {
@@ -95,7 +95,7 @@ export const applyCourse = async (req, res) => {
 		$or: [{ enrolledStudents: { $elemMatch: { _id: studentId, name: name } } }, { pastStudents: { $elemMatch: { _id: studentId, name: name } } }],
 	})
 	if (isExist) return res.status(409).send("you already are enrolled for this course or have taken this course before")
-	const course = await courseModel.updateOne({ _id: courseId }, { $addToSet: { requestedStudents: { _id: studentId, name: name } } }, { new: true })
+	const course = await courseModel.updateOne({ _id: courseId,published:true }, { $addToSet: { requestedStudents: { _id: studentId, name: name } } }, { new: true })
 	if (!course.modifiedCount) {
 		return res.status(409).send("you already applied for this course")
 	}
@@ -109,7 +109,7 @@ export const cancelCourseEnrollment = async (req, res) => {
 	const { courseId, name, studentId } = req.body
 	const response = checkUser(studentId)
 	if (response.data == "doesn't exist") return res.status(404).send("student not found")
-	const course = await courseModel.updateOne({ _id: courseId }, { $pull: { enrolledStudents: { _id: studentId, name: name } } })
+	const course = await courseModel.updateOne({ _id: courseId,published:true }, { $pull: { enrolledStudents: { _id: studentId, name: name } } })
 	if (!course.modifiedCount) return res.status(404).send("you aren't enrolled in this course")
 	return res.status(200).send("cancelled successfully")
 }
@@ -121,7 +121,7 @@ export const acceptRequest = async (req, res) => {
 	const response = checkUser(instructorId)
 	if (response.data == "doesn't exist") return res.status(404).send("instructor not found")
 	const course = await courseModel.updateOne(
-		{ createdBy: instructorId, _id: courseId },
+		{ createdBy: instructorId, _id: courseId,published:true },
 		{ $addToSet: { enrolledStudents: { _id: studentId, name: name } } }
 	)
 	if (!course.matchedCount) return res.status(404).send("you don't own this course or course doesn't exist")
@@ -141,7 +141,7 @@ export const rejectRequest = async (req, res) => {
 	const response = checkUser(instructorId)
 	if (response.data == "doesn't exist") return res.status(404).send("instructor not found")
 	const course = await courseModel.updateOne(
-		{ createdBy: instructorId, _id: courseId },
+		{ createdBy: instructorId, _id: courseId,published:true },
 		{ $pull: { requestedStudents: { _id: studentId, name: name } } }
 	)
 	if (!course.matchedCount) return res.status(404).send("you don't own this course or this course doesn't exist")
@@ -161,7 +161,7 @@ export const rejectRequest = async (req, res) => {
 export const reviewCourse = async (req, res) => {
 	const { courseId, studentName, studentId, review, rating } = req.body
 	const reviewCourseCheck = await courseModel.findOne({
-		_id: courseId,
+		_id: courseId,published:true,
 		$or: [{ enrolledStudents: { _id: studentId, name: studentName } }, { pastStudents: { _id: studentId, name: studentName } }],
 	})
 	if (!reviewCourseCheck) return res.status(404).send("you are not authorized to review this course")
@@ -223,4 +223,17 @@ export const markAsRead = async (req, res) => {
 	const response = await notificationModel.findByIdAndUpdate(notificationId, { status: "read" })
 	if (!response) return res.status(404).send("notification not found")
 	return res.status(200).send("notification marked as read")
+}
+
+export const markAllAsRead = async (req, res) => {
+	const response = await notificationModel.updateMany({ studentId: req.body.id, status: "unread" }, { status: "read" })
+	if (!response.modifiedCount) return res.status(404).send("no notifications found")
+	return res.status(200).send("all notifications marked as read")
+}
+
+export const validateCourse = async (req, res) => {
+	const { courseId } = req.body
+	const response = await courseModel.findByIdAndUpdate(courseId,{$set:{published:true}})
+	if (!response) return res.status(404).send("course not found")
+	return res.status(200).send("course found")
 }

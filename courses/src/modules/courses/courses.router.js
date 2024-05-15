@@ -18,10 +18,12 @@ router.post("/reject", CC.rejectRequest)
 router.post("/finishedCourse", CC.finishedCourse)
 router.patch("/editCourse",CC.editCourse)
 router.delete("/deleteCourse",CC.deleteCourse)
+router.post("/validateCourse",CC.validateCourse)
 //notifications
 router.post("/getAllNotifications", CC.getAllNotifications)
 router.post("/markAsRead", CC.markAsRead)
 router.post("/getAllUnreadNotifications",CC.getAllUnreadNotifications)
+router.post("/markAllAsRead",CC.markAllAsRead)
 //review
 router.post("/review", CC.reviewCourse)
 
