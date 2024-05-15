@@ -22,6 +22,24 @@ export const createCourse = async (req, res) => {
 	}
 }
 
+export const getCourses = async (req, res) => {
+	try {
+		const courses = await courseModel.find({},{__v:0})
+		let obj = JSON.parse(JSON.stringify(courses))
+		obj.forEach((course) => {
+			course.requestedStudents = course.requestedStudents.length
+			course.pastStudents = course.pastStudents.length
+			course.enrolledStudents = course.enrolledStudents.length
+			course.reviews.forEach((review) => {
+				review._id = undefined
+			})
+		})
+		return res.json({courses:obj})
+	} catch (error) {
+		return res.status(400).json({ message: error.message })
+	}
+}
+
 export const editCourse = async (req, res) => {
 	try {
 		const course = await courseModel.findByIdAndUpdate(req.body.id, req.body)
@@ -195,7 +213,7 @@ export const viewCurrentAndPastCourses = async (req, res) => {
 			status: "current",
 		}
 	})
-	const pastCourses = await courseModel.find({ pastStudents: req.params.id }, { name: 1, duration: 1, category: 1, rating: 1 })
+	const pastCourses = await courseModel.find({ pastStudents: { _id: req.body.id,name:req.body.name } }, { name: 1, duration: 1, category: 1, rating: 1 })
 	const pastCoursesObj = pastCourses.map((course) => {
 		return {
 			name: course.name,
