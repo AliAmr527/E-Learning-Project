@@ -10,7 +10,7 @@ router.post("/coursesForInstructor",checkRole("instructor"), CC.getCoursesForIns
 //student
 router.post("/apply", CC.applyCourse)
 router.post("/cancel", CC.cancelCourseEnrollment)
-router.get("/viewCurrentAndPast/:id",CC.viewCurrentAndPastCourses)
+router.post("/viewCurrentAndPast",CC.viewCurrentAndPastCourses)
 //instructor
 router.post("/accept", CC.acceptRequest)
 router.post("/reject", CC.rejectRequest)

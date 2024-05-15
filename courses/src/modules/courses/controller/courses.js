@@ -2,6 +2,7 @@ import courseModel from "../../../../db/models/courses.model.js"
 import axios from "axios"
 import { checkUser } from "../../../utils/checkUser.js"
 import notificationModel from "../../../../db/models/notification.model.js"
+import { Types } from "mongoose"
 export const createCourse = async (req, res) => {
 	const { name, duration, category, capacity, createdBy } = req.body
 	try {
@@ -184,7 +185,7 @@ export const finishedCourse = async (req, res) => {
 	return res.status(200).send("course finished")
 }
 export const viewCurrentAndPastCourses = async (req, res) => {
-	const currentCourses = await courseModel.find({ enrolledStudents: req.params.id }, { name: 1, duration: 1, category: 1, rating: 1 })
+	const currentCourses = await courseModel.find({ enrolledStudents: { _id: req.body.id } }, { name: 1, duration: 1, category: 1, rating: 1 })
 	const currentCoursesObj = currentCourses.map((course) => {
 		return {
 			name: course.name,
