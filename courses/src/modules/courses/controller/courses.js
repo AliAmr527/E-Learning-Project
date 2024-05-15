@@ -189,7 +189,7 @@ export const reviewCourse = async (req, res) => {
 	course.rating = newRating
 	course.rateNo = course.rateNo + 1
 	await course.save()
-	return res.status(200).json(course)
+	return res.status(200).send("course reviewed successfully!")
 }
 
 export const finishedCourse = async (req, res) => {
