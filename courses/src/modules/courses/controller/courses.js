@@ -54,7 +54,7 @@ export const getAllCourses = async (req, res) => {
 	if (req.query.category) {
 		reqQuery.find({ category: { $regex: req.query.category || " ", $options: "i" } })
 	}
-	const courses = await reqQuery.select("-__v -rateNo")
+	const courses = await reqQuery.select("-__v -createdBy -rateNo")
 	let obj = JSON.parse(JSON.stringify(courses))
 	obj.forEach((course) => {
 		course.requestedStudents = undefined
