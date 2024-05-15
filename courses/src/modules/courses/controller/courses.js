@@ -214,8 +214,9 @@ export const getAllNotifications = async (req, res) => {
 }
 
 export const getAllUnreadNotifications = async (req, res) => {
-	const notifications = await notificationModel.find({ studentId: req.body.id, status: "unread" })
-	return res.status(200).json({ notifications })
+	const count = await notificationModel.countDocuments({ studentId: req.body.id, status: "unread" })
+	if(count == 0) return res.status(404).send(false)
+	return res.status(200).send(true)
 }
 
 export const markAsRead = async (req, res) => {
