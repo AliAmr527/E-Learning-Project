@@ -30,7 +30,7 @@ export const getStudents = async (req, res) => {
 		const students = await userModel.find({ role: "student" },{__v:0})
 		const obj = JSON.parse(JSON.stringify(students))
 		obj.forEach((student) => {
-			student.yearsOfExperience = "null"
+			student.yearsOfExperience = -1
 		})
 		return res.json({students:obj})
 	} catch (error) {
