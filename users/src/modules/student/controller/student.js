@@ -28,10 +28,11 @@ export const test = async (req, res) => {
 export const getStudents = async (req, res) => {
 	try {
 		const students = await userModel.find({ role: "student" },{__v:0})
-		students.forEach((student) => {
+		const obj = JSON.parse(JSON.stringify(students))
+		obj.forEach((student) => {
 			student.yearsOfExperience = "null"
 		})
-		return res.json({students})
+		return res.json({students:obj})
 	} catch (error) {
 		return res.status(400).json({ message: error.message })
 	}
