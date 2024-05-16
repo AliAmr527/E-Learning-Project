@@ -20,6 +20,9 @@ export const applyCourse = async (req, res) => {
 	}
 }
 
+export const test = async (req, res) => {
+	console.log(req.body);
+}
 
 export const getStudents = async (req, res) => {
 	try {
@@ -33,7 +36,7 @@ export const getStudents = async (req, res) => {
 export const editStudent = async (req, res) => {
 	try {
 		await userModel.findByIdAndUpdate(req.params.id, req.body)
-		return res.send("user updated successfully")
+		return res.send("instructor updated successfully")
 	} catch (error) {
 		return res.status(400).json({ message: error.message })
 	}

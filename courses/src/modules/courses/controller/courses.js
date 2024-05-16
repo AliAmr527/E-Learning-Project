@@ -1,8 +1,6 @@
 import courseModel from "../../../../db/models/courses.model.js"
-import axios from "axios"
 import { checkUser } from "../../../utils/checkUser.js"
 import notificationModel from "../../../../db/models/notification.model.js"
-import { Types } from "mongoose"
 export const createCourse = async (req, res) => {
 	const { name, duration, category, capacity, createdBy } = req.body
 	try {
@@ -22,6 +20,26 @@ export const createCourse = async (req, res) => {
 	}
 }
 
+export const trackStats = async (req, res) => {
+	const courses = await courseModel.find({}, { _id: 0, name: 1, rating: 1, enrolledStudents: 1, reviews: 1 }).sort({ rating: -1 })
+	const obj = JSON.parse(JSON.stringify(courses))
+
+	obj.forEach((course) => {
+		course.enrolledStudents = course.enrolledStudents.length
+		course.reviews = course.reviews.length
+	})
+
+	var topEnrolled = obj.sort((a,b)=> b.enrolledStudents - a.enrolledStudents)[0]
+	topEnrolled = {name:topEnrolled.name, score: topEnrolled.enrolledStudents}
+	var topRated = obj.sort((a,b)=> b.rating - a.rating)[0]
+	topRated = {name:topRated.name, score: topRated.rating}
+	var topReviewed = obj.sort((a,b)=> b.reviews - a.reviews)[0]
+	topReviewed = {name:topReviewed.name, score: topReviewed.reviews}
+
+	const stats = { topEnrolled,topRated,topReviewed, courses: obj }
+
+	return res.status(200).json({ stats })
+}
 export const getCourses = async (req, res) => {
 	try {
 		const courses = await courseModel.find({}, { __v: 0 })
@@ -42,7 +60,7 @@ export const getCourses = async (req, res) => {
 
 export const editCourse = async (req, res) => {
 	try {
-		const course = await courseModel.findByIdAndUpdate(req.body.id, req.body)
+		const course = await courseModel.findByIdAndUpdate(req.params.id, req.body)
 		if (!course) return res.status(404).send("course not found")
 		return res.status(200).send("course updated")
 	} catch (error) {
@@ -51,7 +69,7 @@ export const editCourse = async (req, res) => {
 }
 export const deleteCourse = async (req, res) => {
 	try {
-		const course = await courseModel.findByIdAndDelete(req.body.id)
+		const course = await courseModel.findByIdAndDelete(req.params.id)
 		if (!course) return res.status(404).send("course not found")
 		return res.status(200).send("course deleted")
 	} catch (error) {
@@ -265,8 +283,7 @@ export const markAllAsRead = async (req, res) => {
 }
 
 export const validateCourse = async (req, res) => {
-	const { courseId } = req.body
-	const response = await courseModel.findByIdAndUpdate(courseId, { $set: { published: true } })
+	const response = await courseModel.findByIdAndUpdate(req.params.id, { $set: { published: true } })
 	if (!response) return res.status(404).send("course not found")
-	return res.status(200).send("course found")
+	return res.status(200).send("course approved successfully")
 }
