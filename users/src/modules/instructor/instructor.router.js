@@ -3,7 +3,6 @@ import { Router } from "express"
 
 const router = Router()
 
-router.get("/viewCourses",IC.viewCourses)
 router.get("/",IC.getInstructors)
 router.post("/editInstructor/:id",IC.editInstructor)
 

@@ -1,0 +1,18 @@
+installations needed:
+VsCode
+intellij
+Flutter SDK and add it to path
+Dart SDK and add it to path
+TomCat Server version 10.1.23
+Java SDK 19
+NodeJs
+------------
+to run this code you need to:
+open terminal in SIMPLE-DS-ECOMM folder and go to with cd courses "courses" and type: npm i
+open terminal in SIMPLE-DS-ECOMM folder and go to with cd users "users" and type: npm i
+open terminal in SIMPLE-DS-ECOMM folder and type: node server.js
+
+open demo project with intellij and run the project using the tomcat server
+
+open terminal in ecom_ass and run flutter pub get
+

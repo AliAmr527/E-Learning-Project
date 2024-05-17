@@ -44,21 +44,3 @@ export const checkUser = async (req, res) => {
 	}
 	return res.status(200).json("exists")
 }
-
-export const editUser = async (req, res) => {
-	try {
-		const user = await userModel.findByIdAndUpdate(req.params.id, req.body)
-		return res.send("user updated successfully")
-	} catch (error) {
-		return res.status(400).json({ message: error.message })
-	}
-}
-
-export const getUsers = async (req, res) => {
-	try {
-		const users = await userModel.find()
-		return res.json(users)
-	} catch (error) {
-		return res.status(400).json({ message: error.message })
-	}
-}
