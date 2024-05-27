@@ -209,7 +209,8 @@ export const reviewCourse = async (req, res) => {
 	if (!reviewCourseCheck) return res.status(404).send("you are not authorized to review this course")
 	const course = await courseModel.findByIdAndUpdate(courseId, { $addToSet: { reviews: { createdBy: studentName, review } } })
 	const newRating = (course.rating * course.rateNo + rating) / (course.rateNo + 1)
-	course.rating = newRating
+	const fixedNewRating = newRating.toFixed(2)
+	course.rating = fixedNewRating
 	course.rateNo = course.rateNo + 1
 	await course.save()
 	return res.status(200).send("course reviewed successfully!")
