@@ -1,6 +1,11 @@
 import express from 'express'
 import bootstrap from './src/index.router.js'
 import cors from "cors"
+import path from 'path'
+import { fileURLToPath } from 'url'
+import dotenv from 'dotenv'
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
+dotenv.config({ path: path.join(__dirname, '.env') })
 const app = express()
 const port = 5002
 var corsOptions = {

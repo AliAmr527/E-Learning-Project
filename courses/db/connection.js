@@ -1,6 +1,6 @@
 import mongoose from "mongoose"
 
-const dbConnection = () => mongoose.connect("mongodb+srv://reaper9027:ZYfH3T09JcNGb8MR@cluster0.vreqasy.mongodb.net/courses?retryWrites=true&w=majority&appName=Cluster0")
+const dbConnection = () => mongoose.connect(process.env.DB_NAME)
 	.then(() => console.log("Connected!"))
 	.catch((e) => {
 		console.log(e.message)
