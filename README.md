@@ -27,9 +27,12 @@ as for our database we used:
 - Mongo Atlas
 
 ## Screenshots
-Sign-in page                | Track Status                |
-:-------------------------: | :-------------------------: |
-![1](https://github.com/AliAmr527/simple-DS-ecomm/assets/131396543/6892686c-3728-4e66-b08e-817a51375d10) | ![2](https://github.com/AliAmr527/simple-DS-ecomm/assets/131396543/33d95ad0-a23d-4f3f-9268-6dc4bd8c08b3)
+Sign-in page                | 
+:-------------------------: | 
+![1](https://github.com/AliAmr527/simple-DS-ecomm/assets/131396543/6892686c-3728-4e66-b08e-817a51375d10) 
+Track Status                |
+:-------------------------: |
+![2](https://github.com/AliAmr527/simple-DS-ecomm/assets/131396543/33d95ad0-a23d-4f3f-9268-6dc4bd8c08b3)
 
 
 
